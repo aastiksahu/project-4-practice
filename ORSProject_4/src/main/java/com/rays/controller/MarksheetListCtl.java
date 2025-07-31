@@ -5,46 +5,27 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.rays.bean.BaseBean;
-import com.rays.bean.RoleBean;
+import com.rays.bean.MarksheetBean;
 import com.rays.exception.ApplicationException;
-import com.rays.model.RoleModel;
+import com.rays.model.MarksheetModel;
 import com.rays.util.DataUtility;
-import com.rays.util.DataValidator;
 import com.rays.util.PropertyReader;
 import com.rays.util.ServletUtility;
 
-@WebServlet(name = "RoleListCtl", urlPatterns = { "/RoleListCtl" })
-public class RoleListCtl extends BaseCtl {
-
-	@Override
-	protected void preload(HttpServletRequest request) {
-
-		RoleModel roleModel = new RoleModel();
-
-		try {
-
-			List roleList = roleModel.list();
-			request.setAttribute("roleList", roleList);
-
-		} catch (ApplicationException e) {
-			e.printStackTrace();
-			return;
-		}
-
-	}
+@WebServlet(name = "MarksheetListCtl", urlPatterns = { "/MarksheetListCtl" })
+public class MarksheetListCtl extends BaseCtl {
 
 	@Override
 	protected BaseBean populateBean(HttpServletRequest request) {
 
-		RoleBean bean = new RoleBean();
+		MarksheetBean bean = new MarksheetBean();
 
-		// bean.setName(DataUtility.getString(request.getParameter("name")));
-		bean.setId(DataUtility.getLong(request.getParameter("roleId")));
+		bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
+		bean.setName(DataUtility.getString(request.getParameter("name")));
 
 		return bean;
 	}
@@ -55,32 +36,31 @@ public class RoleListCtl extends BaseCtl {
 		int pageNo = 1;
 		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
 
-		RoleBean bean = (RoleBean) populateBean(request);
-		RoleModel model = new RoleModel();
+		MarksheetBean bean = (MarksheetBean) populateBean(request);
+		MarksheetModel model = new MarksheetModel();
 
 		try {
-			List<RoleBean> list = model.search(bean, pageNo, pageSize);
-			List<RoleBean> next = model.search(bean, pageNo + 1, pageSize); //////////////////
+			List<MarksheetBean> list = model.search(bean, pageNo, pageSize);
+			List<MarksheetBean> next = model.search(bean, pageNo + 1, pageSize);
 
 			if (list == null || list.isEmpty()) {
-
-				ServletUtility.setErrorMessage("No Record Found", request);
+				ServletUtility.setErrorMessage("No record found", request);
 			}
 
 			ServletUtility.setList(list, request);
-			ServletUtility.setBean(bean, request);
 			ServletUtility.setPageNo(pageNo, request);
 			ServletUtility.setPageSize(pageSize, request);
-			request.setAttribute("nextListSize", next.size()); //////////////////
+			ServletUtility.setBean(bean, request);
+			request.setAttribute("nextListSize", next.size());
 
 			ServletUtility.forward(getView(), request, response);
+
 		} catch (ApplicationException e) {
 			e.printStackTrace();
-			return;
 		}
-
 	}
 
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
@@ -88,57 +68,48 @@ public class RoleListCtl extends BaseCtl {
 		List next = null;
 
 		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
-		int pageSize = DataUtility.getInt(request.getParameter("pagesize"));
+		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
 
 		pageNo = (pageNo == 0) ? 1 : pageNo;
-		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;//////////
+		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 
-		RoleBean bean = (RoleBean) populateBean(request);
-		RoleModel model = new RoleModel();
+		MarksheetBean bean = (MarksheetBean) populateBean(request);
+		MarksheetModel model = new MarksheetModel();
 
 		String op = DataUtility.getString(request.getParameter("operation"));
 		String[] ids = request.getParameterValues("ids");
 
 		try {
 
-			if (OP_SEARCH.equalsIgnoreCase(op) || OP_NEXT.equalsIgnoreCase(op) || OP_PREVIOUS.equalsIgnoreCase(op)) {
+			if (OP_SEARCH.equalsIgnoreCase(op) || "Next".equalsIgnoreCase(op) || "Previous".equalsIgnoreCase(op)) {
 
 				if (OP_SEARCH.equalsIgnoreCase(op)) {
 					pageNo = 1;
-
 				} else if (OP_NEXT.equalsIgnoreCase(op)) {
 					pageNo++;
-
-				} else if (OP_PREVIOUS.equalsIgnoreCase(op)) {
+				} else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
 					pageNo--;
-
 				}
 			} else if (OP_NEW.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.ROLE_CTL, request, response);///////
+				ServletUtility.redirect(ORSView.MARKSHEET_CTL, request, response);
 				return;
-
 			} else if (OP_DELETE.equalsIgnoreCase(op)) {
-
 				pageNo = 1;
-
 				if (ids != null && ids.length > 0) {
-
-					RoleBean deletebean = new RoleBean();
-
+					MarksheetBean deletebean = new MarksheetBean();
 					for (String id : ids) {
-
 						deletebean.setId(DataUtility.getInt(id));
 						model.delete(deletebean);
-						ServletUtility.setSuccessMessage("Data is Deleted Successfully", request);
+						ServletUtility.setSuccessMessage("Marksheet is deleted successfully", request);
 					}
 				} else {
-					ServletUtility.setErrorMessage("Select At Least One Record", request);
+					ServletUtility.setErrorMessage("Select at least one record", request);
 				}
 			} else if (OP_RESET.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.ROLE_LIST_CTL, request, response);///////
+				ServletUtility.redirect(ORSView.MARKSHEET_LIST_CTL, request, response);
 				return;
 			} else if (OP_BACK.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.ROLE_LIST_CTL, request, response);///////
+				ServletUtility.redirect(ORSView.MARKSHEET_LIST_CTL, request, response);
 				return;
 			}
 
@@ -146,13 +117,13 @@ public class RoleListCtl extends BaseCtl {
 			next = model.search(bean, pageNo + 1, pageSize);
 
 			if (list == null || list.size() == 0) {
-				ServletUtility.setErrorMessage("No Record Found", request);
+				ServletUtility.setErrorMessage("No record found ", request);
 			}
-			
+
 			ServletUtility.setList(list, request);
-			ServletUtility.setBean(bean, request);
 			ServletUtility.setPageNo(pageNo, request);
 			ServletUtility.setPageSize(pageSize, request);
+			ServletUtility.setBean(bean, request);
 			request.setAttribute("nextListSize", next.size());
 
 			ServletUtility.forward(getView(), request, response);
@@ -160,12 +131,10 @@ public class RoleListCtl extends BaseCtl {
 			e.printStackTrace();
 			return;
 		}
-
 	}
 
 	@Override
 	protected String getView() {
-		return ORSView.ROLE_LIST_VIEW;
+		return ORSView.MARKSHEET_LIST_VIEW;
 	}
-
 }

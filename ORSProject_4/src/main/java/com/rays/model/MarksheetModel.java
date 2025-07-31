@@ -14,7 +14,7 @@ import com.rays.util.JDBCDataSource;
 
 public class MarksheetModel {
 
-	public Integer nextPk() throws Exception {
+	public Integer nextPk() throws DatabaseException {
 		Connection conn = null;
 		int pk = 0;
 
@@ -42,7 +42,7 @@ public class MarksheetModel {
 		return pk + 1;
 	}
 
-	public long add(MarksheetBean bean) throws Exception {
+	public long add(MarksheetBean bean) throws ApplicationException, DuplicateRecordException {
 
 		Connection conn = null;
 		int pk = 0;
@@ -92,7 +92,7 @@ public class MarksheetModel {
 
 	}
 
-	public void update(MarksheetBean bean) throws Exception {
+	public void update(MarksheetBean bean) throws ApplicationException, DuplicateRecordException {
 
 		Connection conn = null;
 
@@ -143,7 +143,7 @@ public class MarksheetModel {
 
 	}
 
-	public void delete(MarksheetBean bean) throws Exception {
+	public void delete(MarksheetBean bean) throws ApplicationException {
 
 		Connection conn = null;
 
@@ -326,7 +326,7 @@ public class MarksheetModel {
 
 	}
 
-	public List list() throws Exception {
+	public List list() throws ApplicationException {
 		return search(null, 0, 0);
 	}
 

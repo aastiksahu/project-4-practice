@@ -5,31 +5,28 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.rays.bean.BaseBean;
-import com.rays.bean.RoleBean;
+import com.rays.bean.CollegeBean;
 import com.rays.exception.ApplicationException;
-import com.rays.model.RoleModel;
+import com.rays.model.CollegeModel;
 import com.rays.util.DataUtility;
-import com.rays.util.DataValidator;
 import com.rays.util.PropertyReader;
 import com.rays.util.ServletUtility;
 
-@WebServlet(name = "RoleListCtl", urlPatterns = { "/RoleListCtl" })
-public class RoleListCtl extends BaseCtl {
+@WebServlet(name = "CollegeListCtl", urlPatterns = { "/CollegeListCtl" })
+public class CollegeListCtl extends BaseCtl {
 
 	@Override
 	protected void preload(HttpServletRequest request) {
 
-		RoleModel roleModel = new RoleModel();
+		CollegeModel collegeModel = new CollegeModel();
 
 		try {
-
-			List roleList = roleModel.list();
-			request.setAttribute("roleList", roleList);
+			List collegeList = collegeModel.list();
+			request.setAttribute("collegeList", collegeList);
 
 		} catch (ApplicationException e) {
 			e.printStackTrace();
@@ -41,26 +38,28 @@ public class RoleListCtl extends BaseCtl {
 	@Override
 	protected BaseBean populateBean(HttpServletRequest request) {
 
-		RoleBean bean = new RoleBean();
+		CollegeBean bean = new CollegeBean();
 
-		// bean.setName(DataUtility.getString(request.getParameter("name")));
-		bean.setId(DataUtility.getLong(request.getParameter("roleId")));
+		bean.setId(DataUtility.getLong(request.getParameter("collegeId")));
+		bean.setCity(DataUtility.getString(request.getParameter("city")));
 
 		return bean;
+
 	}
 
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		int pageNo = 1;
 		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
 
-		RoleBean bean = (RoleBean) populateBean(request);
-		RoleModel model = new RoleModel();
+		CollegeBean bean = (CollegeBean) populateBean(request);
+		CollegeModel model = new CollegeModel();
 
 		try {
-			List<RoleBean> list = model.search(bean, pageNo, pageSize);
-			List<RoleBean> next = model.search(bean, pageNo + 1, pageSize); //////////////////
+			List list = model.search(bean, pageNo, pageSize);
+			List next = model.search(bean, pageNo + 1, pageSize);
 
 			if (list == null || list.isEmpty()) {
 
@@ -71,7 +70,7 @@ public class RoleListCtl extends BaseCtl {
 			ServletUtility.setBean(bean, request);
 			ServletUtility.setPageNo(pageNo, request);
 			ServletUtility.setPageSize(pageSize, request);
-			request.setAttribute("nextListSize", next.size()); //////////////////
+			request.setAttribute("nextListSize", next.size());
 
 			ServletUtility.forward(getView(), request, response);
 		} catch (ApplicationException e) {
@@ -81,6 +80,7 @@ public class RoleListCtl extends BaseCtl {
 
 	}
 
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
@@ -88,13 +88,13 @@ public class RoleListCtl extends BaseCtl {
 		List next = null;
 
 		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
-		int pageSize = DataUtility.getInt(request.getParameter("pagesize"));
+		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
 
 		pageNo = (pageNo == 0) ? 1 : pageNo;
-		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;//////////
+		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 
-		RoleBean bean = (RoleBean) populateBean(request);
-		RoleModel model = new RoleModel();
+		CollegeBean bean = (CollegeBean) populateBean(request);
+		CollegeModel model = new CollegeModel();
 
 		String op = DataUtility.getString(request.getParameter("operation"));
 		String[] ids = request.getParameterValues("ids");
@@ -113,8 +113,9 @@ public class RoleListCtl extends BaseCtl {
 					pageNo--;
 
 				}
+
 			} else if (OP_NEW.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.ROLE_CTL, request, response);///////
+				ServletUtility.redirect(ORSView.COLLEGE_CTL, request, response);
 				return;
 
 			} else if (OP_DELETE.equalsIgnoreCase(op)) {
@@ -123,32 +124,34 @@ public class RoleListCtl extends BaseCtl {
 
 				if (ids != null && ids.length > 0) {
 
-					RoleBean deletebean = new RoleBean();
+					CollegeBean deletebean = new CollegeBean();
 
 					for (String id : ids) {
 
 						deletebean.setId(DataUtility.getInt(id));
 						model.delete(deletebean);
-						ServletUtility.setSuccessMessage("Data is Deleted Successfully", request);
+						ServletUtility.setSuccessMessage("Data Deleted Successfully", request);
 					}
 				} else {
 					ServletUtility.setErrorMessage("Select At Least One Record", request);
 				}
 			} else if (OP_RESET.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.ROLE_LIST_CTL, request, response);///////
+				ServletUtility.redirect(ORSView.COLLEGE_LIST_CTL, request, response);
 				return;
 			} else if (OP_BACK.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.ROLE_LIST_CTL, request, response);///////
+				ServletUtility.redirect(ORSView.COLLEGE_LIST_CTL, request, response);
 				return;
 			}
 
 			list = model.search(bean, pageNo, pageSize);
 			next = model.search(bean, pageNo + 1, pageSize);
 
-			if (list == null || list.size() == 0) {
-				ServletUtility.setErrorMessage("No Record Found", request);
+			if (!OP_DELETE.equalsIgnoreCase(op)) {
+				if (list == null || list.size() == 0) {
+					ServletUtility.setErrorMessage("No record Found", request);
+				}
 			}
-			
+
 			ServletUtility.setList(list, request);
 			ServletUtility.setBean(bean, request);
 			ServletUtility.setPageNo(pageNo, request);
@@ -160,12 +163,11 @@ public class RoleListCtl extends BaseCtl {
 			e.printStackTrace();
 			return;
 		}
-
 	}
 
 	@Override
 	protected String getView() {
-		return ORSView.ROLE_LIST_VIEW;
+		return ORSView.COLLEGE_LIST_VIEW;
 	}
 
 }

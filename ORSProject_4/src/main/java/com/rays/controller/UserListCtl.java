@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.rays.bean.BaseBean;
+import com.rays.bean.RoleBean;
 import com.rays.bean.UserBean;
 import com.rays.exception.ApplicationException;
 import com.rays.model.RoleModel;
@@ -24,7 +25,7 @@ public class UserListCtl extends BaseCtl {
 	protected void preload(HttpServletRequest request) {
 		RoleModel roleModel = new RoleModel();
 		try {
-			List<?> roleList = roleModel.list();
+			List<RoleBean> roleList = roleModel.list();
 			request.setAttribute("roleList", roleList);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -14,7 +14,7 @@ import com.rays.util.JDBCDataSource;
 
 public class CollegeModel {
 
-	public Integer nextPk() throws Exception {
+	public Integer nextPk() throws DatabaseException {
 		Connection conn = null;
 		int pk = 0;
 
@@ -42,7 +42,7 @@ public class CollegeModel {
 		return pk + 1;
 	}
 
-	public long add(CollegeBean bean) throws Exception {
+	public long add(CollegeBean bean) throws ApplicationException, DuplicateRecordException {
 
 		Connection conn = null;
 		int pk = 0;
@@ -92,7 +92,7 @@ public class CollegeModel {
 
 	}
 
-	public void update(CollegeBean bean) throws Exception {
+	public void update(CollegeBean bean) throws ApplicationException, DuplicateRecordException {
 
 		Connection conn = null;
 
@@ -142,7 +142,7 @@ public class CollegeModel {
 
 	}
 
-	public void delete(CollegeBean bean) throws Exception {
+	public void delete(CollegeBean bean) throws ApplicationException {
 
 		Connection conn = null;
 
@@ -329,7 +329,7 @@ public class CollegeModel {
 
 	}
 
-	public List list() throws Exception {
+	public List list() throws ApplicationException {
 		return search(null, 0, 0);
 	}
 

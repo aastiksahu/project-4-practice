@@ -117,7 +117,7 @@ public class DataUtility {
 		// Test getStringData
 		System.out.println("\ngetStringData Test:");
 		System.out.println("Object to String: " + getStringData(1234));
-		System.out.println("Null Object: '" + getStringData(null) + "'");
+		System.out.println("Null Object: " + getStringData(null) + "");
 
 		// Test getInt
 		System.out.println("\ngetInt Test:");
